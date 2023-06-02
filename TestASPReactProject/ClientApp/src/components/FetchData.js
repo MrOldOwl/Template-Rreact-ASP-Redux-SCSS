@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
 
-let counter = 0;
-
 function FetchData() {
     const [forecasts, setForecasts] = useState([])
     const [loading, setLoading] = useState(true)
@@ -30,15 +28,15 @@ function FetchData() {
 
         socket.current.addEventListener('message', (event) => {
             console.log("Data:", event.data);
-            socket.current.send(`some data ${counter}`);
-            counter++;
-            if (counter > 1000) {
-                counter = 0;
-            }
+
+            //counter++;
+            //if (counter > 1000) {
+            //    counter = 0;
+            //}
         });
 
         socket.current.addEventListener('open', (event) => {
-            socket.current.send("some data");
+            //socket.current.send("some data");
         });
 
         socket.current.addEventListener('close', (event) => {
