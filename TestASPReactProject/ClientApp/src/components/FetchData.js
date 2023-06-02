@@ -1,10 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+
+let counter = 0;
 
 function FetchData() {
     const [forecasts, setForecasts] = useState([])
     const [loading, setLoading] = useState(true)
 
     const [number, setNumber] = useState(5)
+    const socket = useRef(null)
 
     useEffect(() => {
         async function fetchData() {
@@ -20,6 +23,33 @@ function FetchData() {
         }
         fetchData()
     }, [number]);
+
+
+    useEffect(() => {
+        socket.current = new WebSocket(`wss://${window.location.hostname}:${window.location.port}/socket`);
+
+        socket.current.addEventListener('message', (event) => {
+            console.log("Data:", event.data);
+            socket.current.send(`some data ${counter}`);
+            counter++;
+            if (counter > 1000) {
+                counter = 0;
+            }
+        });
+
+        socket.current.addEventListener('open', (event) => {
+            socket.current.send("some data");
+        });
+
+        socket.current.addEventListener('close', (event) => {
+            if (event.wasClean) {
+                console.log('clear close');
+            } else {
+                console.log('error close');
+            }
+        })
+    }, []);
+
 
     const numberChange = (e) => {
         setLoading(true)
