@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 
+const apiSocket = `wss://${window.location.hostname}:${window.location.port}/socket`;
+
 function FetchData() {
     const [forecasts, setForecasts] = useState([])
     const [loading, setLoading] = useState(true)
@@ -24,28 +26,27 @@ function FetchData() {
 
 
     useEffect(() => {
-        socket.current = new WebSocket(`wss://${window.location.hostname}:${window.location.port}/socket`);
-
-        socket.current.addEventListener('message', (event) => {
+        const message = (event) => {
             console.log("Data:", event.data);
+        };
 
-            //counter++;
-            //if (counter > 1000) {
-            //    counter = 0;
-            //}
-        });
-
-        socket.current.addEventListener('open', (event) => {
-            //socket.current.send("some data");
-        });
-
-        socket.current.addEventListener('close', (event) => {
+        const close = (event) => {
             if (event.wasClean) {
-                console.log('clear close');
+                socket.current = null;
             } else {
-                console.log('error close');
+                socket.current = create();
             }
-        })
+        }
+
+        const create = () => {
+            const soc = new WebSocket(apiSocket);
+            soc.onmessage = message;
+            soc.onclose = close;
+
+            return soc;
+        }
+
+        socket.current = create();
     }, []);
 
 
